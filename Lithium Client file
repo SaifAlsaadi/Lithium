@@ -1,0 +1,129 @@
+Sub RemoveWorksheetsExceptSpecificAndHideDataTab()
+    Dim ws As Worksheet
+    Dim wsToKeep As Variant
+    Dim i As Integer
+    Dim keepSheet As Boolean
+    
+    ' Array of worksheet names to keep
+    wsToKeep = Array("Cover", "Dashboard", "Li SD Balance", "Li Supply", "Li Chemical Supply", "Li Demand", "Cathode Demand", "Battery Demand Scenarios", "Tables", "Data")
+    
+    Application.DisplayAlerts = False
+    
+    ' Loop through each worksheet
+    For i = Worksheets.Count To 1 Step -1
+        Set ws = Worksheets(i)
+        keepSheet = False
+        
+        ' Check if the current worksheet should be kept
+        For Each wsName In wsToKeep
+            If ws.Name = wsName Then
+                keepSheet = True
+                Exit For
+            End If
+        Next wsName
+        
+        ' Delete the worksheet if it shouldn't be kept
+        If Not keepSheet Then
+            ws.Delete
+        End If
+    Next i
+    
+    ' Hide the "Data" worksheet if it exists
+    If WorksheetExists("Data") Then
+        Worksheets("Data").Visible = xlSheetHidden
+    End If
+    
+    Application.DisplayAlerts = True
+    MsgBox "All worksheets except specified ones have been removed.", vbInformation
+
+
+
+   
+    Dim tbl As ListObject
+    Dim col As ListColumn
+    Dim headersToRemove As Variant
+    Dim header As Variant
+    Dim found As Boolean
+    
+    ' Array of headers to remove
+    headersToRemove = Array("Last Update", "Latitude", "Longitude", "Ore sub-type", "Brine Grade", "Ore Capacity", "Ore Grade", "Recovery", "Concentrate Capacity")
+    
+    ' Check if "Li Supply" worksheet exists
+    If WorksheetExists("Li Supply") Then
+        Set ws = Worksheets("Li Supply")
+        
+        ' Loop through each table in the worksheet
+        For Each tbl In ws.ListObjects
+            ' Check if the table is named "LI_Supply"
+            If tbl.Name = "LI_Supply" Then
+                ' Loop through each column in the table
+                For Each header In headersToRemove
+                    found = False
+                    ' Loop through each column in the table
+                    For Each col In tbl.ListColumns
+                        ' Check if the column header matches the specified header name
+                        If col.Name = header Then
+                            ' Delete the column
+                            col.Delete
+                            found = True
+                            Exit For
+                        End If
+                    Next col
+                    If Not found Then
+                        MsgBox "Column with header '" & header & "' not found in 'LI_Supply' table.", vbExclamation
+                    End If
+                Next header
+                Exit For ' Exit loop after finding the table
+            End If
+        Next tbl
+    Else
+        MsgBox "Worksheet 'Li Supply' not found.", vbExclamation
+    End If
+    
+    
+        ' Array of headers to remove
+    headersToRemove = Array("Latitude", "Longitude", "State/Province", "Product 2", "Product 3", "Process type", "Process type2", "Process type3", "Process Technology Provider", "Demonstration")
+    
+    ' Check if "Li Supply" worksheet exists
+    If WorksheetExists("Li Chemical Supply") Then
+        Set ws = Worksheets("Li Chemical Supply")
+        
+        ' Loop through each table in the worksheet
+        For Each tbl In ws.ListObjects
+            ' Check if the table is named "LiC_Supply"
+            If tbl.Name = "LiC_Supply" Then
+                ' Loop through each column in the table
+                For Each header In headersToRemove
+                    found = False
+                    ' Loop through each column in the table
+                    For Each col In tbl.ListColumns
+                        ' Check if the column header matches the specified header name
+                        If col.Name = header Then
+                            ' Delete the column
+                            col.Delete
+                            found = True
+                            Exit For
+                        End If
+                    Next col
+                    If Not found Then
+                        MsgBox "Column with header '" & header & "' not found in 'LiC_Supply' table.", vbExclamation
+                    End If
+                Next header
+                Exit For ' Exit loop after finding the table
+            End If
+        Next tbl
+    Else
+        MsgBox "Worksheet 'Li Chemical Supply' not found.", vbExclamation
+    End If
+    
+End Sub
+
+Function WorksheetExists(wsName As String) As Boolean
+    On Error Resume Next
+    WorksheetExists = Not Worksheets(wsName) Is Nothing
+    On Error GoTo 0
+End Function
+
+
+
+
